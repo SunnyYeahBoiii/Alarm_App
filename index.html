@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Nhắc nhở</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Consolas:wght@400;700&display=swap" rel="stylesheet">
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div id="auth-section" class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm hidden">
+        <h2 class="text-2xl font-bold text-center mb-6">Chào mừng</h2>
+
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="login-username" class="block text-sm font-medium text-gray-700">Tên đăng nhập:</label>
+                <input type="text" id="login-username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            </div>
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-gray-700">Mật khẩu:</label>
+                <input type="password" id="login-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            </div>
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Đăng nhập</button>
+            <p class="text-center text-sm text-gray-600">
+                Chưa có tài khoản? <a href="#" id="show-register" class="font-medium text-blue-600 hover:text-blue-500">Đăng ký ngay</a>
+            </p>
+        </form>
+
+        <form id="register-form" class="space-y-4 hidden">
+             <div>
+                <label for="register-username" class="block text-sm font-medium text-gray-700">Tên đăng nhập:</label>
+                <input type="text" id="register-username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            </div>
+            <div>
+                <label for="register-password" class="block text-sm font-medium text-gray-700">Mật khẩu:</label>
+                <input type="password" id="register-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+            </div>
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus-right-offset-2 focus:ring-green-500">Đăng ký</button>
+             <p class="text-center text-sm text-gray-600">
+                Đã có tài khoản? <a href="#" id="show-login" class="font-medium text-blue-600 hover:text-blue-500">Đăng nhập</a>
+            </p>
+        </form>
+    </div>
+
+
+    <div class="main-layout hidden">
+        <button id="logout-btn" class="fixed top-4 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded hidden">Đăng xuất</button>
+        <span id="welcome-message" class="fixed top-4 left-1/2 transform -translate-x-1/2 text-gray-700 font-semibold hidden"></span>
+
+        <button id="open-left-sidebar-btn" class="fixed top-20 left-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hidden">Danh sách Nhắc nhở</button>
+        <button id="open-right-sidebar-btn" class="fixed top-20 right-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hidden">Quản lý Âm thanh</button>
+
+        <div class="sidebar-popup">
+            <h2 class="text-xl font-semibold mb-4">Danh sách Nhắc nhở</h2>
+            <div id="reminders-list">
+                </div>
+            <div id="notification-area">
+                </div>
+        </div>
+
+        <div class="sidebar-popup right-sidebar-popup">
+            <h2 class="text-xl font-semibold mb-4">Quản lý Âm thanh</h2>
+            <div class="mb-4">
+                <label for="upload-audio-input" class="block text-sm font-medium text-gray-700 mb-1">Tải lên tệp âm thanh (.mp3, .wav):</label>
+                <input type="file" id="upload-audio-input" class="form-input mb-2" accept=".mp3, .wav">
+                <button id="upload-audio-btn" class="btn-primary w-full">Tải lên</button>
+            </div>
+            <div id="audio-list-container">
+                 </div>
+            <div id="selected-audio-display" class="mt-4 text-sm text-gray-600">
+                Âm thanh đã chọn: Chưa chọn
+            </div>
+        </div>
+
+        <div class="overlay"></div>
+
+        <div class="main-content-container">
+            <div class="block clock-block">
+                <div id="digital-clock"></div>
+            </div>
+
+            <div class="block reminder-form-block">
+                 <h1 class="text-2xl font-bold">Ứng dụng Nhắc nhở</h1>
+
+                <div class="mb-6 w-full">
+                    <input type="text" id="reminder-text" class="form-input" placeholder="Nhập nội dung nhắc nhở">
+                    <input type="datetime-local" id="reminder-time" class="form-input">
+
+                    <button id="add-reminder-btn" class="btn-primary w-full">Thêm Nhắc nhở</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-notification-popup" class="popup-container">
+        <div class="popup-content">
+            <h3 class="text-lg font-bold mb-2">Nhắc nhở đến hạn!</h3>
+            <div id="popup-reminder-details" class="mb-4"></div>
+            <button id="close-popup-btn" class="btn-primary">Đóng</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

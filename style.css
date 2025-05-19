@@ -1,0 +1,416 @@
+/* Import Consolas font */
+@import url('https://fonts.googleapis.com/css2?family=Consolas:wght@400;700&display=swap');
+
+body {
+    font-family: 'Consolas', monospace;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrollbar when sidebars are off-screen */
+    transition: margin-left 0.3s ease, margin-right 0.3s ease; /* Add transition for body margin */
+}
+
+/* Add margin to body when sidebar is open to push content */
+body.left-sidebar-open {
+    margin-left: 400px; /* Adjust based on sidebar max-width */
+}
+
+body.right-sidebar-open {
+    margin-right: 400px; /* Adjust based on sidebar max-width */
+}
+
+
+/* Class added to body when popup is open to prevent scrolling */
+body.popup-open {
+    overflow: hidden;
+}
+
+
+.main-layout {
+    display: flex;
+    justify-content: center; /* Center the main content horizontally */
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%; /* Ensure main layout takes full width initially */
+}
+
+.block {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for the sidebars */
+.sidebar-popup {
+    position: fixed; /* Đặt vị trí cố định trên màn hình */
+    top: 0; /* Căn trên cùng của màn hình */
+    width: 400px; /* Fixed width for sidebars */
+    height: 100vh; /* Chiều cao đầy đủ của màn hình */
+    background-color: #ffffff;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2); /* Thêm đổ bóng */
+    transition: left 0.3s ease, right 0.3s ease; /* Áp dụng hiệu ứng chuyển động mượt mà */
+    z-index: 1000; /* Đảm bảo popup hiển thị trên các nội dung khác */
+    overflow-y: auto; /* Cho phép cuộn dọc nếu nội dung dài */
+    padding: 20px; /* Khoảng đệm bên trong */
+    box-sizing: border-box; /* Bao gồm padding và border trong kích thước */
+    display: flex; /* Sử dụng flexbox cho bố cục bên trong */
+    flex-direction: column; /* Sắp xếp các mục theo cột */
+}
+
+/* Left sidebar specific styles */
+.sidebar-popup:not(.right-sidebar-popup) {
+    left: -400px; /* Ban đầu đặt ngoài màn hình về phía bên trái (bằng với width) */
+}
+.sidebar-popup:not(.right-sidebar-popup).open {
+    left: 0; /* Khi class 'open' được thêm vào, di chuyển vào màn hình */
+}
+
+/* Right sidebar specific styles */
+.right-sidebar-popup {
+    right: -400px; /* Ban đầu đặt ngoài màn hình về phía bên phải (bằng với width) */
+    left: auto; /* Override left property from generic sidebar */
+}
+.right-sidebar-popup.open {
+    right: 0; /* Khi class 'open' được thêm vào, di chuyển vào màn hình */
+    left: auto; /* Keep left auto */
+}
+
+
+.sidebar-popup h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+
+/* Styles for the main content area (Clock and Form) */
+.main-content-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between clock and form blocks */
+    width: 100%;
+    max-width: 600px; /* Limit the width of the central content */
+    align-items: center; /* Center items within main content container */
+}
+
+/* Styles for the clock block */
+.clock-block {
+    /* Inherits .block styles */
+    text-align: center;
+    width: fit-content; /* Make the block fit its content */
+    padding: 20px 30px;
+}
+#digital-clock {
+    font-family: 'Consolas', monospace; /* Use Consolas for digital clock */
+    color: #1f2937;
+    margin: 0;
+    white-space: pre;
+    line-height: 1.2;
+}
+
+#digital-clock .time {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+#digital-clock .date {
+    font-size: 1.25em;
+    opacity: 0.8;
+}
+
+/* Styles for the reminder app block (form) */
+.reminder-form-block {
+    /* Inherits .block styles */
+    width: 100%; /* Ensure form block takes full width within main-content-container */
+}
+.reminder-form-block h1 {
+     text-align: center;
+     margin-bottom: 20px;
+}
+
+.form-input {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 15px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+/* Style for file input in sidebar */
+#upload-audio-input {
+    padding: 10px 0; /* Adjust padding for file input */
+}
+
+
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none; /* Remove default button border */
+}
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+/* Reminder item styles */
+.reminder-item {
+    background-color: #eef2ff;
+    padding: 15px; /* Keep padding for internal spacing */
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex; /* Still use flexbox for the main layout */
+    justify-content: space-between;
+    align-items: flex-start; /* Align items to the top */
+    position: relative; /* Needed for absolute positioning of the delete button */
+    min-height: 40px; /* Ensure a minimum height if content is very short */
+    word-break: break-word; /* Break long words within the item */
+    overflow-wrap: break-word; /* Fallback for older browsers */
+}
+/* Style for the content within the reminder item (ul) */
+.reminder-item ul {
+    list-style: none; /* Remove default list bullets */
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* Allow the content to take available space */
+    margin-right: 40px; /* Add enough margin to the right for the button */
+}
+.reminder-item ul li {
+    margin-bottom: 5px; /* Space between list items */
+}
+.reminder-item ul li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* Style for the delete button within the list item */
+.btn-delete {
+    background-color: #ef4444;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: absolute; /* Position the button absolutely */
+    top: 50%; /* Align the top edge to the vertical center */
+    right: 5px; /* Position 5px from the right edge of the parent */
+    transform: translateY(-50%); /* Move the button up by half its height to truly center it */
+    flex-shrink: 0; /* Prevent the button from shrinking (still good practice with flex) */
+    border: none; /* Remove default button border */
+}
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+/* Notification area styles */
+#notification-area {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    border-radius: 8px;
+    width: 100%;
+}
+ #notification-area:empty {
+     display: none; /* Hide if empty */
+ }
+
+/* Reminder list container within sidebar */
+#reminders-list {
+    width: 100%; /* Take full width of sidebar block */
+}
+
+/* Button to open sidebar */
+/* Adjusted fixed position to account for potential body margin */
+#open-left-sidebar-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* Fixed left */
+    z-index: 1001; /* Above the sidebar */
+    background-color: #3b82f6;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none; /* Remove default button border */
+}
+ #open-left-sidebar-btn:hover {
+     background-color: #2563eb;
+ }
+ /* Hide button when left sidebar is open */
+ body.left-sidebar-open #open-left-sidebar-btn {
+     display: none;
+ }
+
+ /* Button to open right sidebar */
+ /* Adjusted fixed position to account for potential body margin */
+#open-right-sidebar-btn {
+    position: fixed;
+    top: 20px; /* Position at the top */
+    right: 20px; /* Fixed right */
+    z-index: 1001; /* Above the sidebar */
+    background-color: #3b82f6;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none; /* Remove default button border */
+}
+ #open-right-sidebar-btn:hover {
+     background-color: #2563eb;
+ }
+ /* Hide button when right sidebar is open */
+ body.right-sidebar-open #open-right-sidebar-btn {
+     display: none;
+ }
+
+
+ /* Overlay to dim background */
+ .overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, 0.5);
+     z-index: 999; /* Below sidebars and popups, above main content */
+     visibility: hidden; /* Use visibility for transition */
+     opacity: 0; /* Use opacity for fade */
+     transition: opacity 0.3s ease, visibility 0.3s ease;
+ }
+ /* Show overlay when either sidebar OR popup is visible */
+ .overlay.visible {
+     visibility: visible;
+     opacity: 1;
+ }
+
+
+ /* Style for audio file list items in the right sidebar */
+.uploaded-audio-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    /* Use flexbox for layout within the list item */
+    display: flex;
+    justify-content: space-between; /* Space out content */
+    align-items: center; /* Vertically align items */
+    transition: background-color 0.2s ease;
+    word-break: break-all; /* Break long words */
+}
+.uploaded-audio-item:hover {
+    background-color: #f3f4f6;
+}
+ .uploaded-audio-item:last-child {
+     border-bottom: none;
+ }
+ /* Style for the span containing the filename */
+ .uploaded-audio-item span {
+     flex-grow: 1; /* Allow the filename span to take up available space */
+     margin-right: 10px; /* Add space between filename and buttons */
+     word-break: break-all; /* Break long words to prevent overflow */
+ }
+ /* Style for the play and delete buttons within the list item */
+ .uploaded-audio-item button {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      cursor: pointer;
+      flex-shrink: 0; /* Prevent the button from shrinking */
+      border: none;
+      transition: background-color 0.2s ease;
+ }
+ .uploaded-audio-item .play-audio-btn {
+      background-color: #60a5fa; /* Blue color for play button */
+      color: white;
+      margin-right: 5px; /* Space between play and delete */
+ }
+  .uploaded-audio-item .play-audio-btn:hover {
+      background-color: #3b82f6;
+  }
+ .uploaded-audio-item .delete-audio-btn {
+     background-color: #ef4444; /* Red color for delete button */
+     color: white;
+ }
+ .uploaded-audio-item .delete-audio-btn:hover {
+     background-color: #dc2626;
+ }
+
+
+/* Styles for the custom notification popup */
+.popup-container {
+    position: fixed; /* Fixed position relative to the viewport */
+    top: 50%; /* Align top edge to vertical center */
+    left: 50%; /* Align left edge to horizontal center */
+    transform: translate(-50%, -50%); /* Shift back by half its width and height to truly center */
+    background-color: white;
+    padding: 30px; /* Increased padding */
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Increased shadow */
+    z-index: 1002; /* Above overlay and sidebars */
+    visibility: hidden; /* Hidden by default */
+    opacity: 0; /* Start with 0 opacity for fade-in effect */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Add transition for fade effect */
+    max-width: 90%; /* Max width on smaller screens */
+    width: 400px; /* Default width */
+    text-align: center;
+}
+
+.popup-container.visible {
+    visibility: visible; /* Make visible when 'visible' class is added */
+    opacity: 1; /* Fade in */
+}
+
+/* Ensure reminder details text wraps */
+#popup-reminder-details {
+    white-space: pre-wrap; /* Preserve line breaks from the message */
+    word-break: break-word; /* Break long words */
+    overflow-wrap: break-word; /* Fallback for older browsers */
+    margin-bottom: 20px; /* Add space below the message */
+}
+
+/* Style for the close button within the popup */
+.popup-content .btn-primary {
+    margin-top: 10px; /* Add space above the button */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar-popup,
+    .right-sidebar-popup {
+        width: 80%; /* Increase sidebar width on smaller screens */
+        max-width: none; /* Remove max-width limit */
+    }
+     /* Adjust body margin for smaller screens */
+     body.left-sidebar-open {
+         margin-left: 80%;
+     }
+     body.right-sidebar-open {
+         margin-right: 80%;
+     }
+}
+
+@media (min-width: 769px) {
+     /* Apply fixed margin based on sidebar width for larger screens */
+     body.left-sidebar-open .main-layout {
+         margin-left: 400px;
+         transition: margin-left 0.3s ease;
+     }
+     body.right-sidebar-open .main-layout {
+         margin-right: 400px;
+          transition: margin-right 0.3s ease;
+     }
+     /* Reset margin when no sidebar is open on larger screens */
+      body:not(.left-sidebar-open):not(.right-sidebar-open) .main-layout {
+          margin-left: 0;
+          margin-right: 0;
+          transition: margin-left 0.3s ease, margin-right 0.3s ease;
+      }
+
+}
+
